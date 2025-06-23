@@ -23,5 +23,10 @@ custom_fields:
   name: API Key
   description: Unifi Site Manager API Key, see <a href="https://developer.ui.com/site-manager-api/" class="underline">documentation</a> for details.
   placeholder: xxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+- keyname: unifi_site_id
+  field_type: string
+  name: Site ID
+  description: The UUID of a particular site you want displayed on the dashboard. Only available via REST API call.
+  placeholder: xxxxxxxxxxxxxxxxxxxxxxxx
 name: Unifi Site Manager
 refresh_interval: 15

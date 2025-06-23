@@ -1,6 +1,12 @@
 {% assign unifi_sites = IDX_0.data %}
 {% assign unifi_hosts = IDX_1.data %}
 {% assign unifi_devices = IDX_2.data %}
+{% assign unifi_site_id = trmnl.plugin_settings.custom_fields_values.unifi_site_id %}
+
+{% comment %} Filter sites by unifi_site_id if specified {% endcomment %}
+{% if unifi_site_id and unifi_site_id != '' %}
+  {% assign unifi_sites = unifi_sites | where: 'siteId', unifi_site_id %}
+{% endif %}
 
 {% template host_card %}
   <div class="item col--span-3 p--2 border--h-7">
