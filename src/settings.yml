@@ -15,7 +15,7 @@ custom_fields:
   name: About This Plugin
   field_type: author_bio
   description: Shows the status of your connected Ubiquiti Unifi Sites.
-  github_url: https://github.com/
+  github_url: https://github.com/stephenyeargin/trmnl-unifi-site-manage
   learn_more_url: https://ui.com/how-it-works
   email_address: stephen@yearg.in
 - keyname: unifi_api_key
