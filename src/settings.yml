@@ -1,0 +1,28 @@
+#
+# Changes to this file will be overwritten by `trmnlp pull`.
+#
+# Docs: https://help.usetrmnl.com/en/articles/10542599-importing-and-exporting-private-plugins#h_581fb988f0
+#
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: 'https://api.vercel.app/blog'
+polling_headers: ''
+name: Plugin Template
+refresh_interval: 1440
+custom_fields:
+- keyname: author_bio
+  name: About This Plugin
+  field_type: author_bio
+  description: This is template text you should probably update 😁
+  github_url: https://github.com/
+  learn_more_url: https://usetrmnl.com/
+  email_address: email@example.com
+- keyname: example_string
+  field_type: string
+  name: A Configurable String
+  description: Save some data here for use in URLs or controlling the display
+  placeholder: An Example Value

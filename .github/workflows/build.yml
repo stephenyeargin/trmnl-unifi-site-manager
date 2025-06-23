@@ -1,0 +1,51 @@
+name: Build and Deploy
+
+on:
+  workflow_dispatch
+  # push:
+  #   branches: [ main ]
+  # pull_request:
+  #   branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+
+      - name: Run trmnlp build
+        run: bundle exec trmnlp build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+
+      - name: Create trmnlp config directory
+        run: mkdir -p ~/.config/trmnlp
+
+      - name: Create trmnlp config file
+        run: |
+          cat > ~/.config/trmnlp/config.yml << EOF
+          ---
+          api_key: ${{ secrets.TRMNL_API_KEY }}
+          EOF
+
+      - name: Run trmnlp push
+        run: bundle exec trmnlp push --force
