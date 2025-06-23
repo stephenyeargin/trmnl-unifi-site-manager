@@ -1,9 +1,10 @@
 #! /bin/bash
 
+
 if command -v trmnlp &> /dev/null
 then
     echo "Starting trmnlp..."
-    trmnlp serve
+    dotenvx run -f .env -- trmnlp serve
     exit
 fi
 

@@ -1,28 +1,27 @@
-#
-# Changes to this file will be overwritten by `trmnlp pull`.
-#
-# Docs: https://help.usetrmnl.com/en/articles/10542599-importing-and-exporting-private-plugins#h_581fb988f0
-#
 ---
 strategy: polling
 no_screen_padding: 'no'
 dark_mode: 'no'
 static_data: ''
 polling_verb: get
-polling_url: 'https://api.vercel.app/blog'
-polling_headers: ''
-name: Plugin Template
-refresh_interval: 1440
+polling_url: |
+  https://api.ui.com/v1/sites
+  https://api.ui.com/v1/hosts
+  https://api.ui.com/v1/devices
+polling_headers: x-api-key={{ unifi_api_key }}
+id: 102852
 custom_fields:
 - keyname: author_bio
   name: About This Plugin
   field_type: author_bio
-  description: This is template text you should probably update 😁
+  description: Shows the status of your connected Ubiquiti Unifi Sites.
   github_url: https://github.com/
-  learn_more_url: https://usetrmnl.com/
-  email_address: email@example.com
-- keyname: example_string
+  learn_more_url: https://ui.com/how-it-works
+  email_address: stephen@yearg.in
+- keyname: unifi_api_key
   field_type: string
-  name: A Configurable String
-  description: Save some data here for use in URLs or controlling the display
-  placeholder: An Example Value
+  name: API Key
+  description: Unifi Site Manager API Key, see <a href="https://developer.ui.com/site-manager-api/" class="underline">documentation</a> for details.
+  placeholder: xxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+name: Unifi Site Manager
+refresh_interval: 15

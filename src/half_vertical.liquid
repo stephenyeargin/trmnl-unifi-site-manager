@@ -1,19 +1,30 @@
 <div class="view">
-  <div class="layout layout--row layout--top">
-    <div class="grid grid--cols-1 gap--medium">
-      <div class="item">
-        <div class="meta"></div>
-        <div class="content">
-          <div class="label label--medium">Half Vertical</div>
-          <div class="description">Replace me with your content!</div>
-        </div>
-      </div>
+  <div class="layout layout--column layout--top">
+    <div class="grid grid--cols-1 gap--small">
+      {% for site in unifi_sites, limit: 1 %}
+        {% for host in unifi_hosts %}
+          {% if host.id == site.hostId %}
+            {% render "host_card", host: host, site: site %}
+            {% for device_group in unifi_devices %}
+              {% if device_group.hostId == host.id %}
+                <div class="grid grid--cols-1 gap--small">
+                {% for device in device_group.devices %}
+                  {% unless device.isConsole %}
+                    {% render "device_card", device: device, device_group: device_group, host: host, site: site %}
+                  {% endunless %}
+                {% endfor %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
     </div>
   </div>
 
   <div class="title_bar">
-    <img class="image" src="https://usetrmnl.com/images/brand/glyphs/glyph--black.svg" />
-    <span class="title">Plugin Template</span>
-    <span class="instance">{{ trmnl.plugin_settings.instance_name }}</span>
+    <img class="image" src="https://avatars.githubusercontent.com/u/3934889?s=200&v=4" />
+    <span class="title label--small">Site Dashboard</span>
+    <span class="instance label--small">{{ trmnl.plugin_settings.instance_name }}</span>
   </div>
 </div>

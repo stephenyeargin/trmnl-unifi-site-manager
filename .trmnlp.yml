@@ -7,12 +7,14 @@ watch:
   - src
 
 # values of custom fields (defined in src/settings.yml)
-custom_fields: {}
+custom_fields: {
+  unifi_api_key: '{{ env.UNIFI_API_KEY }}'
+}
 
 # override variables
 variables:
   trmnl: {
     plugin_settings: {
-      instance_name: 'My Instance'
+      instance_name: 'Unifi Site Manager'
     }
   }
