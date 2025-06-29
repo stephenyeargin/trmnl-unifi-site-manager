@@ -19,7 +19,7 @@ custom_fields:
   learn_more_url: https://ui.com/how-it-works
   email_address: stephen@yearg.in
 - keyname: unifi_api_key
-  field_type: string
+  field_type: password
   name: API Key
   description: Unifi Site Manager API Key, see <a href="https://developer.ui.com/site-manager-api/" class="underline">documentation</a> for details.
   placeholder: xxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxx
