@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Build and Release
 
 on:
   push:
@@ -6,8 +6,14 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
 jobs:
   build:
+    name: Verify `trnmlp build` succeeds
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -22,10 +28,120 @@ jobs:
       - name: Run trmnlp build
         run: bundle exec trmnlp build
 
-  deploy:
-    needs: build
+  check-secret:
+    name: Check if `TRMNL_API_KEY` set
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    outputs:
+      has-secret: ${{ steps.check.outputs.has-secret }}
+    steps:
+      - name: Check if TRMNL_API_KEY secret exists
+        id: check
+        env:
+          TRMNL_API_KEY: ${{ secrets.TRMNL_API_KEY }}
+        run: |
+          if [ -n "$TRMNL_API_KEY" ]; then
+            echo "has-secret=true" >> $GITHUB_OUTPUT
+          else
+            echo "No configured TRMNL_API_KEY, stopping."
+            echo "has-secret=false" >> $GITHUB_OUTPUT
+          fi
+
+  check-version:
+    name: Check if VERSION is new
+    needs: [check-secret, build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && needs.check-secret.outputs.has-secret == 'true'
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      should-release: ${{ steps.check.outputs.should-release }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read VERSION file
+        id: version
+        run: |
+          VERSION=$(cat VERSION | tr -d '\n\r' | xargs)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
+
+      - name: Validate version format
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: VERSION file must contain a valid semver format (e.g., 1.0.0)"
+            exit 1
+          fi
+
+      - name: Check if tag exists
+        id: check
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if git ls-remote --tags origin | grep -q "refs/tags/v$VERSION$"; then
+            echo "Tag v$VERSION already exists, skipping release"
+            echo "should-release=false" >> $GITHUB_OUTPUT
+          else
+            echo "Tag v$VERSION does not exist, will create release"
+            echo "should-release=true" >> $GITHUB_OUTPUT
+          fi
+
+  create-release:
+    name: Create a GitHub release
+    needs: [check-secret, check-version]
+    runs-on: ubuntu-latest
+    if: needs.check-version.outputs.should-release == 'true' && needs.check-secret.outputs.has-secret == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history for changelog generation
+
+      - name: Create tag
+        run: |
+          VERSION="${{ needs.check-version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+          git push origin "v$VERSION"
+
+      - name: Generate release notes
+        id: release-notes
+        run: |
+          VERSION="${{ needs.check-version.outputs.version }}"
+          
+          # Get the previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          # Generate changelog
+          if [ -n "$PREV_TAG" ]; then
+            echo "## Changes since $PREV_TAG" > release_notes.md
+            echo "" >> release_notes.md
+            git log --pretty=format:"- %s (%h)" $PREV_TAG..HEAD >> release_notes.md
+          else
+            echo "## Initial Release" > release_notes.md
+            echo "" >> release_notes.md
+            echo "- Initial release of plugin" >> release_notes.md
+          fi
+          
+          echo "Release notes generated:"
+          cat release_notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.check-version.outputs.version }}
+          name: Release v${{ needs.check-version.outputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    name: Deploy to TRMNL
+    needs: [check-secret, check-version, create-release]
+    runs-on: ubuntu-latest
+    if: success() && needs.check-secret.outputs.has-secret == 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,4 +163,6 @@ jobs:
           EOF
 
       - name: Run trmnlp push
-        run: bundle exec trmnlp push --force
+        run: |
+          echo "Deploying version ${{ needs.check-version.outputs.version }}"
+          bundle exec trmnlp push --force
