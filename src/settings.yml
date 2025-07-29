@@ -28,5 +28,6 @@ custom_fields:
   name: Site ID
   description: The UUID of a particular site you want displayed on the dashboard. Only available via REST API call.
   placeholder: xxxxxxxxxxxxxxxxxxxxxxxx
+  required: false
 name: Unifi Site Manager
 refresh_interval: 15
