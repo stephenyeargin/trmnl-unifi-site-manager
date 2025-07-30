@@ -9,7 +9,8 @@ watch:
 # values of custom fields (defined in src/settings.yml)
 custom_fields: {
   unifi_api_key: "{{ env.UNIFI_API_KEY }}",
-  unifi_site_id: "53b5a52ae4b0b8b2dd5f6ed5"
+  unifi_site_id: "53b5a52ae4b0b8b2dd5f6ed5",
+  unifi_show_devices: 'yes'
 }
 
 # override variables

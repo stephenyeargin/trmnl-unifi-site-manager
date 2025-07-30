@@ -4,17 +4,17 @@
       {% for host in unifi_hosts %}
         {% if host.id == site.hostId %}
           {% render "host_card", host: host, site: site %}
+          {% if unifi_show_devices == 'yes' %}
           {% for device_group in unifi_devices %}
             {% if device_group.hostId == host.id %}
               <div class="grid grid--cols-1 gap--small">
               {% for device in device_group.devices %}
-                {% unless device.isConsole %}
-                  {% render "device_card", device: device, device_group: device_group, host: host, site: site %}
-                {% endunless %}
+                {% render "device_card", device: device, device_group: device_group, host: host, site: site %}
               {% endfor %}
               </div>
             {% endif %}
           {% endfor %}
+          {% endif %}
         {% endif %}
       {% endfor %}
     {% endfor %}

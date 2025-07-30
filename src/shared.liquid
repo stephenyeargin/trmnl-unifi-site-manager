@@ -2,6 +2,7 @@
 {% assign unifi_hosts = IDX_1.data %}
 {% assign unifi_devices = IDX_2.data %}
 {% assign unifi_site_id = trmnl.plugin_settings.custom_fields_values.unifi_site_id %}
+{% assign unifi_show_devices = trmnl.plugin_settings.custom_fields_values.unifi_show_devices %}
 
 {% comment %} Filter sites by unifi_site_id if specified {% endcomment %}
 {% if unifi_site_id and unifi_site_id != '' %}
@@ -9,43 +10,46 @@
 {% endif %}
 
 {% template host_card %}
-  <div class="item col--span-3 p--2 border--h-7">
-    <div class="content">
-      <div class="grid grid--cols-3">
-        <div class="col col--span-2 col--end">
-          <div class="label label--large">{{ host.reportedState.name }}</div>
-          {% if host.reportedState.state != 'connected' %}
-            <span class="label label--small label--inverted">⚠︎ {{ host.reportedState.state }}</span>
+<div class="item col--span-3 p--2 border--h-7">
+  <div class="content">
+    <div class="grid grid--cols-3">
+      <div class="col col--span-2 col--end">
+        <div class="label label--large">{{ host.reportedState.name }}</div>
+        {% if host.reportedState.state != 'connected' %}
+          <span class="label label--small label--inverted">⚠︎ {{ host.reportedState.state }}</span>
+        {% endif %}
+        <div class="description label--small">{{ host.reportedState.hardware.shortname }} • {{ site.meta.desc }} • {{ site.statistics.percentages.wanUptime }}% Uptime - {{ site.statistics.ispInfo.name }}</div>
+      </div>
+      <div class="col col--span-1 col--end">
+        <div class="flex gap--xsmall" style="flex-wrap: wrap;">
+          <span class="label label--outline label--small">{{ host.reportedState.ip }}</span>
+          <span class="label label--outline label--small">{{ site.statistics.counts.totalDevice }} Devices</span>
+          <span class="label label--outline label--small">{{ site.statistics.counts.wifiClient | plus: site.statistics.counts.wiredClient }} Clients</span>
+          {% if site.statistics.counts.offlineDevice > 0 %}
+            <span class="label label--outline label--small">{{ site.statistics.counts.offlineDevice }} Offline</span>
           {% endif %}
-          <div class="description label--small">{{ host.reportedState.hardware.shortname }} • {{ site.meta.desc }} • {{ site.statistics.percentages.wanUptime }}% Uptime - {{ site.statistics.ispInfo.name }}</div>
-        </div>
-        <div class="col col--span-1 col--end">
-          <div class="flex gap--xsmall" style="flex-wrap: wrap;">
-            <span class="label label--outline label--small">{{ host.reportedState.ip }}</span>
-            <span class="label label--outline label--small">{{ site.statistics.counts.totalDevice }} Devices</span>
-            <span class="label label--outline label--small">{{ site.statistics.counts.wifiClient | plus: site.statistics.counts.wiredClient }} Clients</span>
-            {% if site.statistics.counts.offlineDevice > 0 %}
-              <span class="label label--outline label--small">{{ site.statistics.counts.offlineDevice }} Offline</span>
-            {% endif %}
-          </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 {% endtemplate %}
 
 {% template device_card %}
-  <div class="item">
-    <div class="meta"></div>
-    <div class="content">
-      <div class="label">{{ device.name }}</div>
-      <div class="flex gap--xsmall">
-        {% if device.status != 'online' %}
-          <span class="label label--inverted label--small">⚠︎</span>
-        {% endif %}
-        <span class="label label--outline label--small">{{ device.model }}</span>
-        <span class="label label--outline label--small">{{ device.ip }}</span>
-      </div>
+<div class="item">
+  <div class="meta"></div>
+  <div class="content">
+    <div class="label">{{ device.name }}</div>
+    <div class="flex gap--xsmall">
+      {% if device.status != 'online' %}
+        <span class="label label--inverted label--small">⚠︎</span>
+      {% endif %}
+      {% if device.isConsole %}
+      <span class="label label--outline label--small">Console</span>
+      {% endif %}
+      <span class="label label--outline label--small">{{ device.model }}</span>
+      <span class="label label--outline label--small">{{ device.ip }}</span>
     </div>
   </div>
+</div>
 {% endtemplate %}

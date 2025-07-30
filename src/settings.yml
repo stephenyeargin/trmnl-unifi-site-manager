@@ -9,6 +9,7 @@ polling_url: |
   https://api.ui.com/v1/hosts
   https://api.ui.com/v1/devices
 polling_headers: x-api-key={{ unifi_api_key }}
+polling_body: ''
 id: 102852
 custom_fields:
 - keyname: author_bio
@@ -28,6 +29,14 @@ custom_fields:
   name: Site ID
   description: The UUID of a particular site you want displayed on the dashboard. Only available via REST API call.
   placeholder: xxxxxxxxxxxxxxxxxxxxxxxx
-  required: false
+  optional: true
+- keyname: unifi_show_devices
+  field_type: select
+  name: Show Devices
+  description: Whether to show the list of connected Unifi devices
+  default: 'yes'
+  options:
+  - 'Yes'
+  - 'No'
 name: Unifi Site Manager
 refresh_interval: 15
