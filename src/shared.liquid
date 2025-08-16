@@ -18,7 +18,7 @@
         {% if host.reportedState.state != 'connected' %}
           <span class="label label--small label--inverted">⚠︎ {{ host.reportedState.state }}</span>
         {% endif %}
-        <div class="description label--small">{{ host.reportedState.hardware.shortname }} • {{ site.meta.desc }} • {{ site.statistics.percentages.wanUptime }}% Uptime - {{ site.statistics.ispInfo.name }}</div>
+        <div class="description label--small">{{ host.reportedState.hardware.shortname }} • {{ site.meta.desc }} • {{ site.statistics.percentages.wanUptime | round: 2 }}% Uptime - {{ site.statistics.ispInfo.name }}</div>
       </div>
       <div class="col col--span-1 col--end">
         <div class="flex gap--xsmall" style="flex-wrap: wrap;">
