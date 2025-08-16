@@ -5,6 +5,12 @@
 
 set -e
 
+# Check for unstaged changes
+if [[ -n $(git status --porcelain | grep '^[^?]') ]]; then
+  echo "Error: You have unstaged changes. Please commit or stash them before bumping the version."
+  exit 1
+fi
+
 CURRENT_VERSION=$(cat VERSION | tr -d '\n\r' | xargs)
 TYPE=${1:-patch}
 
@@ -42,8 +48,16 @@ NEW_VERSION="$MAJOR.$MINOR.$PATCH"
 echo "$NEW_VERSION" > VERSION
 
 echo "Version bumped to: $NEW_VERSION"
-echo ""
-echo "Next steps:"
-echo "1. Review your changes"
-echo "2. Commit with: git add VERSION && git commit -m 'Bump version to $NEW_VERSION'"
-echo "3. Push to trigger release: git push origin main"
+
+# Add and commit the VERSION file
+git add VERSION
+git commit -m "Bump version to $NEW_VERSION"
+
+# Prompt to push
+read -p "Do you want to push the version now? [y/N]: " PUSH_NOW
+if [[ "$PUSH_NOW" =~ ^[Yy]$ ]]; then
+  git push origin main
+  echo "Version pushed to origin/main."
+else
+  echo "Version not pushed. You can push later with: git push origin main"
+fi
