@@ -14,7 +14,7 @@
   <div class="content">
     <div class="grid grid--cols-3">
       <div class="col col--span-2 col--end">
-        <div class="label label--large">{{ host.reportedState.name }}</div>
+        <div class="title title--large">{{ host.reportedState.name }}</div>
         {% if host.reportedState.state != 'connected' %}
           <span class="label label--small label--inverted">⚠︎ {{ host.reportedState.state }}</span>
         {% endif %}
@@ -39,7 +39,7 @@
 <div class="item">
   <div class="meta"></div>
   <div class="content">
-    <div class="label">{{ device.name }}</div>
+    <div class="title title--small clamp--1">{{ device.name }}</div>
     <div class="flex gap--xsmall">
       {% if device.status != 'online' %}
         <span class="label label--inverted label--small">⚠︎</span>
