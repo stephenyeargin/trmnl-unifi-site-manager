@@ -1,17 +1,27 @@
 <div class="layout layout--row layout--top">
-  <div class="grid grid--cols-3 gap--small">
+  <div class="w--full">
     {% for site in unifi_sites %}
       {% for host in unifi_hosts %}
         {% if host.id == site.hostId %}
           {% render "host_card", host: host, site: site %}
           {% if unifi_show_devices == 'yes' %}
-          {% for device_group in unifi_devices %}
-            {% if device_group.hostId == host.id %}
-              {% for device in device_group.devices %}
-                {% render "device_card", device: device, device_group: device_group, host: host, site: site %}
-              {% endfor %}
-            {% endif %}
-          {% endfor %}
+          <div
+            class="columns {% if unifi_site_id %}h--[85cqh]{% else %}h--[35cqh]{% endif %}"
+            data-overflow="true"
+            data-overflow-max-cols="3"
+            data-overflow-max-cols-lg="4"
+            data-overflow-counter="true"
+          >
+            <div class="column">
+            {% for device_group in unifi_devices %}
+              {% if device_group.hostId == host.id %}
+                {% for device in device_group.devices %}
+                  {% render "device_card", device: device, device_group: device_group, host: host, site: site %}
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+            </div>
+          </div>
           {% endif %}
         {% endif %}
       {% endfor %}

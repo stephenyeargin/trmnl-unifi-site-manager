@@ -10,23 +10,29 @@
 {% endif %}
 
 {% template host_card %}
-<div class="item col--span-3 p--2 border--h-7">
-  <div class="content">
-    <div class="grid grid--cols-3">
-      <div class="col col--span-2 col--end">
-        <div class="title title--large">{{ host.reportedState.name }}</div>
+<div class="flex flex--row">
+  <div class="grow">
+    <div class="flex flex--row">
+      <div class="stretch mb--3">
+        <div class="">
+          <span class="title title--large lg:title--xlarge">{{ host.reportedState.name }}</span>
+        </div>
         {% if host.reportedState.state != 'connected' %}
-          <span class="label label--small label--inverted">⚠︎ {{ host.reportedState.state }}</span>
+        <div>
+          <span class="label label--small lg:label--base label--inverted">⚠︎ {{ host.reportedState.state }}</span>
+        </div>
         {% endif %}
-        <div class="description label--small">{{ host.reportedState.hardware.shortname }} • {{ site.meta.desc }} • {{ site.statistics.percentages.wanUptime | round: 2 }}% Uptime - {{ site.statistics.ispInfo.name }}</div>
+        <div>
+          <span class="description label--small lg:label--base">{{ host.reportedState.hardware.shortname }} • {{ site.meta.desc }} • {{ site.statistics.percentages.wanUptime | round: 2 }}% Uptime - {{ site.statistics.ispInfo.name }}</span>
+        </div>
       </div>
-      <div class="col col--span-1 col--end">
-        <div class="flex gap--xsmall" style="flex-wrap: wrap;">
-          <span class="label label--outline label--small">{{ host.reportedState.ip }}</span>
-          <span class="label label--outline label--small">{{ site.statistics.counts.totalDevice }} Devices</span>
-          <span class="label label--outline label--small">{{ site.statistics.counts.wifiClient | plus: site.statistics.counts.wiredClient }} Clients</span>
+      <div class="">
+        <div class="">
+          <span class="label label--outline label--small lg:label--base">{{ host.reportedState.ip }}</span>
+          <span class="label label--outline label--small lg:label--base">{{ site.statistics.counts.totalDevice }} Devices</span>
+          <span class="label label--outline label--small lg:label--base">{{ site.statistics.counts.wifiClient | plus: site.statistics.counts.wiredClient }} Clients</span>
           {% if site.statistics.counts.offlineDevice > 0 %}
-            <span class="label label--outline label--small">{{ site.statistics.counts.offlineDevice }} Offline</span>
+            <span class="label label--outline label--small lg:label--base">{{ site.statistics.counts.offlineDevice }} Offline</span>
           {% endif %}
         </div>
       </div>
@@ -39,16 +45,18 @@
 <div class="item">
   <div class="meta"></div>
   <div class="content">
-    <div class="title title--small clamp--1">{{ device.name }}</div>
-    <div class="flex gap--xsmall">
+    <div>
+      <span class="title title--small" data-clamp="none">{{ device.name }}</span>
+    </div>
+    <div class="">
       {% if device.status != 'online' %}
-        <span class="label label--inverted label--small">⚠︎</span>
+        <span class="label label--inverted label--small lg:label--base">⚠︎</span>
       {% endif %}
       {% if device.isConsole %}
-      <span class="label label--outline label--small">Console</span>
+      <span class="label label--outline label--small lg:label--base">Console</span>
       {% endif %}
-      <span class="label label--outline label--small">{{ device.model }}</span>
-      <span class="label label--outline label--small">{{ device.ip }}</span>
+      <span class="label label--outline label--small lg:label--base">{{ device.model }}</span>
+      <span class="label label--outline label--small lg:label--base">{{ device.ip }}</span>
     </div>
   </div>
 </div>
