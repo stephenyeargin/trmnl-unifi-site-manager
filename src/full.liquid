@@ -1,12 +1,13 @@
 <div class="layout layout--row layout--top">
   <div class="w--full">
     {% for site in unifi_sites %}
+      <div class="h--[{% if unifi_site_count > 1 and unifi_site_id == blank %}{{ 100 | divided_by: unifi_site_count }}{% else %}90{% endif %}cqh]">
       {% for host in unifi_hosts %}
         {% if host.id == site.hostId %}
           {% render "host_card", host: host, site: site %}
           {% if unifi_show_devices == 'yes' %}
           <div
-            class="columns {% if unifi_site_id %}h--[85cqh]{% else %}h--[35cqh]{% endif %}"
+            class="columns"
             data-overflow="true"
             data-overflow-max-cols="3"
             data-overflow-max-cols-lg="4"
@@ -25,6 +26,7 @@
           {% endif %}
         {% endif %}
       {% endfor %}
+      </div>
     {% else %}
     <div>
       <span class="title">No sites available.</span>

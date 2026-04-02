@@ -3,6 +3,7 @@
 {% assign unifi_devices = IDX_2.data %}
 {% assign unifi_site_id = trmnl.plugin_settings.custom_fields_values.unifi_site_id %}
 {% assign unifi_show_devices = trmnl.plugin_settings.custom_fields_values.unifi_show_devices %}
+{% assign unifi_site_count = unifi_sites | size %}
 
 {% comment %} Filter sites by unifi_site_id if specified {% endcomment %}
 {% if unifi_site_id and unifi_site_id != '' %}
@@ -11,11 +12,11 @@
 
 {% template host_card %}
 <div class="flex flex--row">
-  <div class="grow">
+  <div class="grow w--full">
     <div class="flex flex--row lg:portrait:flex--col">
       <div class="stretch mb--3">
         <div class="">
-          <span class="title title--large lg:title--xlarge">{{ host.reportedState.name }}</span>
+          <span class="title title--base lg:title--large">{{ host.reportedState.name }}</span>
         </div>
         {% if host.reportedState.state != 'connected' %}
         <div>
@@ -46,7 +47,7 @@
   <div class="meta"></div>
   <div class="content">
     <div>
-      <span class="title title--small" data-clamp="none">{{ device.name }}</span>
+      <span class="title title--small lg:title--base" data-clamp="none">{{ device.name }}</span>
     </div>
     <div class="">
       {% if device.status != 'online' %}
