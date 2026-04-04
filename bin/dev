@@ -10,7 +10,7 @@ fi
 if command -v docker &> /dev/null
 then
     echo "Running trmnl/trmnlp container..."
-    docker run -p 4567:4567 -v .:/plugin --env-file=.env trmnl/trmnlp serve
+    docker run --name trmnlp -p 4567:4567 -v .:/plugin --env-file=.env trmnl/trmnlp serve
     exit
 fi
 
