@@ -1,16 +1,25 @@
 #! /bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+CONTAINER_NAME="$(basename "${ROOT_DIR}")"
+
 if command -v trmnlp &> /dev/null
 then
     echo "Starting trmnlp..."
-    dotenvx run -f .env -- trmnlp serve
+    trmnlp serve
     exit
 fi
 
 if command -v docker &> /dev/null
 then
-    echo "Running trmnl/trmnlp container..."
-    docker run --name trmnlp -p 4567:4567 -v .:/plugin --env-file=.env trmnl/trmnlp serve
+    echo "Running trmnl/trmnlp container (${CONTAINER_NAME})..."
+    if docker container inspect "${CONTAINER_NAME}" > /dev/null 2>&1
+    then
+        docker start -a "${CONTAINER_NAME}"
+    else
+        docker run --name "${CONTAINER_NAME}" -p 4567:4567 -v "${ROOT_DIR}":/plugin trmnl/trmnlp serve
+    fi
     exit
 fi
 
