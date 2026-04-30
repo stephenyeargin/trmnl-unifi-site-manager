@@ -18,7 +18,7 @@ then
     then
         docker start -a "${CONTAINER_NAME}"
     else
-        docker run --name "${CONTAINER_NAME}" -p 4567:4567 -v "${ROOT_DIR}":/plugin trmnl/trmnlp serve
+        docker run --name "${CONTAINER_NAME}" -p 4567:4567 -v "${ROOT_DIR}":/plugin --env-file=.env trmnl/trmnlp serve
     fi
     exit
 fi
