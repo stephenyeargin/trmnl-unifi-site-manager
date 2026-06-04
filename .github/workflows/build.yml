@@ -10,6 +10,7 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
+  deployments: write
 
 jobs:
   build:
@@ -17,16 +18,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Ruby
+        id: setup-ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.4'
           bundler-cache: true
 
+      - name: Resolve RubyGems user dir
+        id: gemdir
+        run: |
+          set -euo pipefail
+          GEM_USER_DIR="$(ruby -r rubygems -e 'print Gem.user_dir')"
+          echo "dir=$GEM_USER_DIR" >> "$GITHUB_OUTPUT"
+          echo "$GEM_USER_DIR/bin" >> "$GITHUB_PATH"
+
+      - name: Cache trmnlp gem
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.gemdir.outputs.dir }}
+          key: ${{ runner.os }}-ruby-${{ steps.setup-ruby.outputs.ruby-version }}-trmnl-preview-v1
+
       - name: Install trmnlp
-        run: gem install trmnl_preview
+        run: |
+          set -euo pipefail
+          if ! command -v trmnlp >/dev/null 2>&1; then
+            gem install --user-install trmnl_preview -N
+          fi
 
       - name: Run trmnlp build
         run: trmnlp build
@@ -59,7 +79,7 @@ jobs:
       should-release: ${{ steps.check.outputs.should-release }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Read VERSION file
         id: version
@@ -95,7 +115,7 @@ jobs:
     if: needs.check-version.outputs.should-release == 'true' && needs.check-secret.outputs.has-secret == 'true'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0  # Fetch full history for changelog generation
 
@@ -130,7 +150,7 @@ jobs:
           cat release_notes.md
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ needs.check-version.outputs.version }}
           name: Release v${{ needs.check-version.outputs.version }}
@@ -147,16 +167,35 @@ jobs:
     if: success() && needs.check-secret.outputs.has-secret == 'true'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Ruby
+        id: setup-ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.4'
           bundler-cache: true
 
+      - name: Resolve RubyGems user dir
+        id: gemdir
+        run: |
+          set -euo pipefail
+          GEM_USER_DIR="$(ruby -r rubygems -e 'print Gem.user_dir')"
+          echo "dir=$GEM_USER_DIR" >> "$GITHUB_OUTPUT"
+          echo "$GEM_USER_DIR/bin" >> "$GITHUB_PATH"
+
+      - name: Cache trmnlp gem
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.gemdir.outputs.dir }}
+          key: ${{ runner.os }}-ruby-${{ steps.setup-ruby.outputs.ruby-version }}-trmnl-preview-v1
+
       - name: Install trmnlp
-        run: gem install trmnl_preview
+        run: |
+          set -euo pipefail
+          if ! command -v trmnlp >/dev/null 2>&1; then
+            gem install --user-install trmnl_preview -N
+          fi
 
       - name: Create trmnlp config directory
         run: mkdir -p ~/.config/trmnlp
@@ -168,7 +207,74 @@ jobs:
           api_key: ${{ secrets.TRMNL_API_KEY }}
           EOF
 
+      - name: Create GitHub deployment
+        id: create_deployment
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const version = `${{ needs.check-version.outputs.version }}`;
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+              environment: 'production',
+              description: `Deploy version ${version} via trmnlp push`,
+              auto_merge: false,
+              required_contexts: [],
+              transient_environment: false,
+              production_environment: true,
+            });
+
+            core.setOutput('deployment-id', String(deployment.data.id));
+
+      - name: Mark deployment in progress
+        uses: actions/github-script@v9
+        with:
+          script: |
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: Number(`${{ steps.create_deployment.outputs.deployment-id }}`),
+              state: 'in_progress',
+              description: 'Running trmnlp push',
+              environment: 'production',
+            });
+
       - name: Run trmnlp push
+        id: push
+        continue-on-error: true
         run: |
           echo "Deploying version ${{ needs.check-version.outputs.version }}"
           trmnlp push --force
+
+      - name: Mark deployment success
+        if: steps.push.outcome == 'success'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: Number(`${{ steps.create_deployment.outputs.deployment-id }}`),
+              state: 'success',
+              description: 'Deployment completed',
+              environment: 'production',
+            });
+
+      - name: Mark deployment failure
+        if: steps.push.outcome == 'failure'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: Number(`${{ steps.create_deployment.outputs.deployment-id }}`),
+              state: 'failure',
+              description: 'Deployment failed',
+              environment: 'production',
+            });
+
+      - name: Fail job when push fails
+        if: steps.push.outcome == 'failure'
+        run: exit 1

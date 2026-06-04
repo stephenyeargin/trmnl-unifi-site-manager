@@ -34,15 +34,32 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Ruby
+        id: setup-ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.4'
           bundler-cache: true
 
+      - name: Resolve RubyGems user dir
+        id: gemdir
+        run: |
+          set -euo pipefail
+          GEM_USER_DIR="$(ruby -r rubygems -e 'print Gem.user_dir')"
+          echo "dir=$GEM_USER_DIR" >> "$GITHUB_OUTPUT"
+          echo "$GEM_USER_DIR/bin" >> "$GITHUB_PATH"
+
+      - name: Cache trmnlp gem
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.gemdir.outputs.dir }}
+          key: ${{ runner.os }}-ruby-${{ steps.setup-ruby.outputs.ruby-version }}-trmnl-preview-v1
+
       - name: Install trmnlp
         run: |
           set -euo pipefail
-          gem install trmnl_preview
+          if ! command -v trmnlp >/dev/null 2>&1; then
+            gem install --user-install trmnl_preview -N
+          fi
 
       - name: Configure trmnlp
         run: |
@@ -104,7 +121,7 @@ jobs:
         if: steps.changes.outputs.changed == 'true'
         id: pr
         continue-on-error: true
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const [owner, repo] = process.env.REPO.split('/');
