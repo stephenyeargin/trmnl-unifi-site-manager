@@ -1,6 +1,6 @@
 # Unifi Site Manager for TRMNL
 
-[![Build and Deploy](https://github.com/stephenyeargin/trmnl-unifi-site-manager/actions/workflows/build.yml/badge.svg)](https://github.com/stephenyeargin/trmnl-unifi-site-manager/actions/workflows/build.yml)
+[![Build and Deploy](https://github.com/stephenyeargin/trmnl-unifi-site-manager/actions/workflows/build.yml/badge.svg)](https://github.com/stephenyeargin/trmnl-unifi-site-manager/actions/workflows/build.yml) [![TRMNL Recipe Connections](https://trmnl-badges.gohk.xyz/badge/connections?recipe=102852)](https://trmnl.com/recipes/102852)
 
 ![promo](assets/promo.png)
 
