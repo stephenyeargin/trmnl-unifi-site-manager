@@ -28,8 +28,27 @@
         </div>
       </div>
       <div class="">
-        <div class="">
+        {% assign active_wan = site.wans.active %}
+        {% if active_wan %}
+        <div class="mb--1">
+          <span class="label label--inverted label--small lg:label--base">Active</span>
+          <span class="label label--small lg:label--base">{{ active_wan.id }} · {{ active_wan.isp }}</span>
+          <span class="label label--outline label--small lg:label--base">{{ active_wan.ip }}</span>
+          <span class="label label--outline label--small lg:label--base">{{ active_wan.uptime | round }}%</span>
+        </div>
+        {% else %}
+        <div class="mb--1">
           <span class="label label--outline label--small lg:label--base">{{ host.reportedState.ip }}</span>
+        </div>
+        {% endif %}
+        {% for backup_wan in site.wans.backups %}
+        <div class="mb--1">
+          <span class="label label--outline label--small lg:label--base">Backup</span>
+          <span class="label label--small lg:label--base">{{ backup_wan.id }} · {{ backup_wan.isp }}</span>
+          <span class="label label--outline label--small lg:label--base">ready · {{ backup_wan.uptime | round }}%</span>
+        </div>
+        {% endfor %}
+        <div class="">
           <span class="label label--outline label--small lg:label--base">{{ site.statistics.counts.totalDevice }} Devices</span>
           <span class="label label--outline label--small lg:label--base">{{ site.statistics.counts.wifiClient | plus: site.statistics.counts.wiredClient }} Clients</span>
           {% if site.statistics.counts.offlineDevice > 0 %}
