@@ -42,5 +42,5 @@ custom_fields:
   - 'Yes'
   - 'No'
 name: Unifi Site Manager
-description: Network health and connected devices from UniFi Site Manager
+description: Network health & connected devices
 refresh_interval: 15
