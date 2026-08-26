@@ -5,14 +5,31 @@ dark_mode: 'no'
 static_data: ''
 polling_verb: get
 framework_version: latest
-serverless_language: 
-polling_url: |
-  https://api.ui.com/v1/sites
-  https://api.ui.com/v1/hosts
-  https://api.ui.com/v1/devices
+serverless_language: node
+polling_url: "https://api.ui.com/v1/sites\r\nhttps://api.ui.com/v1/hosts\r\nhttps://api.ui.com/v1/devices\r\n"
 polling_headers: x-api-key={{ unifi_api_key }}
 polling_body: ''
 id: 102852
+oauth_enabled: 'false'
+oauth_pkce_enabled: 'no'
+oauth_authorize_url: ''
+oauth_token_url: ''
+oauth_scopes: ''
+oauth_scope_separator: ''
+oauth_refresh_url: ''
+oauth_auth_params: ''
+oauth_token_headers: ''
+oauth_token_site: ''
+oauth_token_params: ''
+oauth_token_request_auth_method: ''
+oauth_body_format: ''
+oauth_token_response_metadata: ''
+oauth_authorization_method: ''
+oauth_refresh_params: ''
+oauth_token_field_name: ''
+oauth_expiry_field_name: ''
+oauth_expiry_strategy: ''
+oauth_fixed_expiry_ms: ''
 custom_fields:
 - keyname: author_bio
   name: About This Plugin
@@ -30,8 +47,8 @@ custom_fields:
 - keyname: unifi_site_id
   field_type: string
   name: Site ID
-  description: The UUID of a particular site you want displayed on the dashboard. Only available via REST API call.
-  placeholder: xxxxxxxxxxxxxxxxxxxxxxxx
+  description: The UUID of a particular site you want displayed on the dashboard. Only available via <a href="https://developer.ui.com/site-manager/v1.0.0/listsites" class="underline">REST API call</a> as <code>.data[].siteId</code>.
+  placeholder: 1234abcdef56789abcdef
   optional: true
 - keyname: unifi_show_devices
   field_type: select
