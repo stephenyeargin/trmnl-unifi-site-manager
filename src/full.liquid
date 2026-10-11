@@ -1,11 +1,12 @@
+<div class="layout layout--col layout--top">
 {% for site in unifi_sites %}
-  <div class="layout layout--col layout--top mb--2">
+  <div class="stretch flex flex--col flex--left w--full">
   {% for host in unifi_hosts %}
     {% if host.id == site.hostId %}
       {% render "host_card", host: host, site: site %}
       {% if unifi_show_devices == 'yes' %}
       <div
-        class="columns"
+        class="columns stretch"
         data-overflow="true"
         data-overflow-min-cols="2"
         data-overflow-max-cols="3"
@@ -27,10 +28,9 @@
   {% endfor %}
   </div>
 {% else %}
-<div class="layout layout--col layout--middle">
   <span class="title">No sites available.</span>
-</div>
 {% endfor %}
+</div>
 
 
 <div class="title_bar">

@@ -13,21 +13,26 @@
 {% template host_card %}
 <div class="flex flex--row w--full">
   <div class="grow w--full">
-    <div class="flex flex--row lg:portrait:flex--col">
-      <div class="stretch mb--3">
+    <div class="flex {% if stacked or compact %}flex--col flex--left{% else %}flex--row lg:portrait:flex--col{% endif %}">
+      <div class="stretch {% if stacked or compact %}mb--1{% else %}mb--3{% endif %}">
         <div class="">
           <span class="title title--base lg:title--large">{{ host.reportedState.name }}</span>
+          {% if compact and host.reportedState.state != 'connected' %}
+          <span class="label label--small lg:label--base label--inverted">⚠︎ {{ host.reportedState.state }}</span>
+          {% endif %}
         </div>
+        {% unless compact %}
         {% if host.reportedState.state != 'connected' %}
         <div>
           <span class="label label--small lg:label--base label--inverted">⚠︎ {{ host.reportedState.state }}</span>
         </div>
         {% endif %}
         <div>
-          <span class="description label--small lg:label--base">{{ host.reportedState.hardware.shortname }} • {{ site.meta.desc }} • {{ site.statistics.percentages.wanUptime | round: 2 }}% Uptime - {{ site.statistics.ispInfo.name }}</span>
+          <span class="description label--small lg:label--base">{{ host.reportedState.hardware.shortname }} • {{ site.meta.desc }}</span>
         </div>
+        {% endunless %}
       </div>
-      <div class="">
+      <div class="{% unless stacked or compact %}w--80{% endunless %}">
         {% assign active_wan = site.wans.active %}
         {% if active_wan %}
         <div class="mb--1">
@@ -38,7 +43,9 @@
         </div>
         {% else %}
         <div class="mb--1">
+          <span class="label label--small lg:label--base">{{ site.statistics.ispInfo.name }}</span>
           <span class="label label--outline label--small lg:label--base">{{ host.reportedState.ip }}</span>
+          <span class="label label--outline label--small lg:label--base">{{ site.statistics.percentages.wanUptime | round }}%</span>
         </div>
         {% endif %}
         {% for backup_wan in site.wans.backups %}
